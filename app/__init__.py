@@ -13,15 +13,12 @@ oauth = OAuth()  # <--- 2. INITIALIZE
 def create_app():
     app = Flask(__name__)
     
-    # Config
     app.config.from_object(Config)
 
-    # Init Plugins
     db.init_app(app)
     login_manager.init_app(app)
     login_manager.login_view = 'main.login' 
 
-    # <--- 3. CONFIGURE GOOGLE ---
     oauth.init_app(app)
     oauth.register(
         name='google',
@@ -31,14 +28,19 @@ def create_app():
         client_kwargs={'scope': 'openid email profile'}
     )
 
-    # Register Blueprints
     from app.routes import main
     app.register_blueprint(main)
 
-    # User Loader
     from app.models import User
     @login_manager.user_loader
     def load_user(user_id):
         return User.query.get(int(user_id))
+
+    # ✅ AUTO CREATE TABLES + SEED
+    with app.app_context():
+        db.create_all()
+
+        from seed import seed_data
+        seed_data()
 
     return app
