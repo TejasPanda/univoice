@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2 style="margin-bottom: 5px;">Student Dashboard</h2>
+
+<p style="margin-bottom: 30px; color: #555;">
+    <strong>Room:</strong> {{ current_user.room_number if current_user.room_number else 'Not Assigned' }}
+    |
+    <strong>Hostel:</strong> {{ current_user.hostel.name if current_user.hostel else 'Not Assigned' }}
+</p>
+
+<div style="display: flex; gap: 40px; flex-wrap: wrap; align-items: flex-start;">
+
+    <!-- File Complaint -->
+    <div style="
+        flex: 1;
+        min-width: 320px;
+        border: 1px solid #ddd;
+        padding: 25px;
+        border-radius: 10px;
+        background: #f8f9fa;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    ">
+        <h3 style="margin-top: 0; margin-bottom: 20px;">File a Complaint</h3>
+
+        <form method="POST" style="display: flex; flex-direction: column; gap: 12px;">
+
+            <label style="font-weight: bold;">Category</label>
+            <select name="category" required
+                    style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                {% for cat in Category %}
+                    <option value="{{ cat.value }}">{{ cat.value|upper }}</option>
+                {% endfor %}
+            </select>
+
+            <label style="font-weight: bold;">Heading</label>
+            <input type="text" name="heading"
+                   placeholder="e.g., Fan not working"
+                   required
+                   style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+
+            <label style="font-weight: bold;">Description</label>
+            <textarea name="description"
+                      rows="4"
+                      required
+                      style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;"></textarea>
+
+            <button type="submit"
+                    style="
+                        margin-top: 10px;
+                        background: #007bff;
+                        color: white;
+                        border: none;
+                        padding: 10px;
+                        border-radius: 5px;
+                        cursor: pointer;
+                        font-weight: bold;
+                    ">
+                Submit Complaint
+            </button>
+
+        </form>
+    </div>
+
+    <!-- My Complaints -->
+    <div style="
+        flex: 1.2;
+        min-width: 350px;
+        border: 1px solid #ddd;
+        padding: 25px;
+        border-radius: 10px;
+        background: white;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    ">
+        <h3 style="margin-top: 0; margin-bottom: 20px;">My Complaints</h3>
+
+        {% if not complaints %}
+            <p style="color: #666;">No complaints filed yet.</p>
+        {% else %}
+
+            {% for c in complaints %}
+            <div style="
+                border-bottom: 1px solid #eee;
+                padding-bottom: 15px;
+                margin-bottom: 15px;
+            ">
+
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <strong>{{ c.heading }}</strong>
+                    <small style="color: #777;">
+                        {{ c.created_at.strftime('%Y-%m-%d') }}
+                    </small>
+                </div>
+
+                <div style="margin-top: 6px;">
+                    <span style="
+                        font-weight: bold;
+                        padding: 4px 8px;
+                        border-radius: 4px;
+                        color: white;
+                        font-size: 0.8em;
+                        background:
+                            {% if c.status.value == 'resolved' %} #28a745
+                            {% elif c.status.value == 'pending' %} #ffc107
+                            {% elif c.status.value == 'rejected' %} #dc3545
+                            {% elif c.status.value == 'in_progress' %} #17a2b8
+                            {% else %} #6c757d
+                            {% endif %}
+                    ">
+                        {{ c.status.value|upper }}
+                    </span>
+
+                    {% if c.is_urgent %}
+                        <span style="
+                            margin-left: 8px;
+                            background: #dc3545;
+                            color: white;
+                            padding: 4px 8px;
+                            border-radius: 4px;
+                            font-size: 0.75em;
+                            font-weight: bold;
+                        ">
+                            URGENT
+                        </span>
+                    {% endif %}
+                </div>
+
+                <p style="margin-top: 8px; color: #555;">
+                    {{ c.description }}
+                </p>
+
+                {% if c.mentor_comment %}
+                    <div style="color: purple; font-size: 0.9em;">
+                        <strong>Mentor:</strong> {{ c.mentor_comment }}
+                    </div>
+                {% endif %}
+
+                {% if c.warden_comment %}
+                    <div style="color: darkblue; font-size: 0.9em;">
+                        <strong>Warden:</strong> {{ c.warden_comment }}
+                    </div>
+                {% endif %}
+
+            </div>
+            {% endfor %}
+
+        {% endif %}
+    </div>
+
+</div>
+
+{% endblock %}

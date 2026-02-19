@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2 style="text-align: center; margin-bottom: 40px;">Admin Control Center</h2>
+
+<div style="display: flex; flex-wrap: wrap; gap: 30px; justify-content: center;">
+
+    {% set cards = [
+        ('🏢', 'Manage Hostels', 'main.admin_hostels', '#343a40', '#f8f9fa'),
+        ('👮‍♂️', 'Manage Wardens', 'main.admin_wardens', '#ff9800', '#fff8e1'),
+        ('🎓', 'Manage Mentors', 'main.admin_mentors', '#9c27b0', '#f3e5f5'),
+        ('👨‍🎓', 'Manage Students', 'main.admin_students', '#2196f3', '#e3f2fd'),
+        ('🚨', 'All Complaints', 'main.admin_view_complaints', '#dc3545', '#fdecea')
+    ] %}
+
+    {% for icon, title, route, border_color, bg_color in cards %}
+        <a href="{{ url_for(route) }}" style="text-decoration: none; color: inherit;">
+            <div style="
+                width: 230px;
+                padding: 35px;
+                border: 2px solid {{ border_color }};
+                text-align: center;
+                border-radius: 12px;
+                background: {{ bg_color }};
+                box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+                transition: all 0.2s ease-in-out;
+            "
+            onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 8px 18px rgba(0,0,0,0.15)'"
+            onmouseout="this.style.transform='translateY(0px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)'">
+
+                <h1 style="font-size: 3em; margin: 0 0 15px 0;">{{ icon }}</h1>
+                <h3 style="margin: 0;">{{ title }}</h3>
+
+            </div>
+        </a>
+    {% endfor %}
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,177 @@
+{% if not complaints %}
+    <p style="color:#666;"><i>No complaints in this section.</i></p>
+{% else %}
+
+<table style="
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95em;
+">
+
+    <thead style="background:#343a40; color:white;">
+        <tr>
+            <th style="padding:10px;">Student</th>
+            <th style="padding:10px;">Category</th>
+            <th style="padding:10px;">Issue</th>
+            <th style="padding:10px;">Warden Comment</th>
+            <th style="padding:10px;">Action</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for c in complaints %}
+        <tr style="border-bottom:1px solid #eee; vertical-align:top;">
+
+            <!-- Student -->
+            <td style="padding:12px;">
+                <strong>{{ c.author.name }}</strong><br>
+                <small>Room: {{ c.author.room_number or 'N/A' }}</small>
+
+                {% if c.is_urgent %}
+                    <div style="
+                        margin-top:6px;
+                        background:#dc3545;
+                        color:white;
+                        font-size:0.75em;
+                        padding:4px 6px;
+                        display:inline-block;
+                        border-radius:4px;
+                        font-weight:bold;
+                    ">
+                        URGENT
+                    </div>
+                {% endif %}
+            </td>
+
+            <!-- Category -->
+            <td style="padding:12px;">
+                <span style="
+                    background:#e9ecef;
+                    padding:4px 8px;
+                    border-radius:4px;
+                    font-size:0.8em;
+                ">
+                    {{ c.category.value|upper }}
+                </span>
+            </td>
+
+            <!-- Issue -->
+            <td style="padding:12px;">
+                <strong>{{ c.heading }}</strong><br>
+                <div style="color:#555; margin-top:5px;">
+                    {{ c.description }}
+                </div>
+
+                {% if c.mentor_comment %}
+                    <div style="margin-top:6px; color:purple; font-size:0.85em;">
+                        <strong>Mentor:</strong> {{ c.mentor_comment }}
+                    </div>
+                {% endif %}
+            </td>
+
+            <!-- Form Starts Here -->
+            <form method="POST">
+                <input type="hidden" name="complaint_id" value="{{ c.id }}">
+
+                <!-- Warden Comment -->
+                <td style="padding:12px;">
+                    {% if section == 'completed' %}
+                        <div style="color:#333;">
+                            {{ c.warden_comment or '-' }}
+                        </div>
+                    {% else %}
+                        <textarea name="warden_comment"
+                                  rows="2"
+                                  style="width:100%; padding:6px; border:1px solid #ccc; border-radius:4px;">
+                            {{ c.warden_comment or '' }}
+                        </textarea>
+                    {% endif %}
+                </td>
+
+                <!-- Action -->
+                <td style="padding:12px;">
+
+                    {% if section == 'completed' %}
+
+                        <strong style="
+                            color:
+                                {% if c.status.value == 'resolved' %}green
+                                {% elif c.status.value == 'rejected' %}red
+                                {% else %}gray
+                                {% endif %}
+                        ">
+                            {{ c.status.value|upper }}
+                        </strong>
+
+                        {% if c.resolved_at %}
+                            <br>
+                            <small style="color:#777;">
+                                {{ c.resolved_at.strftime('%Y-%m-%d') }}
+                            </small>
+                        {% endif %}
+
+                    {% else %}
+
+                        <div style="display:flex; flex-direction:column; gap:6px;">
+
+                            <button type="submit"
+                                    name="status"
+                                    value="resolved"
+                                    style="
+                                        background:#28a745;
+                                        color:white;
+                                        border:none;
+                                        padding:6px;
+                                        border-radius:4px;
+                                        cursor:pointer;
+                                        font-weight:bold;
+                                    ">
+                                Resolve
+                            </button>
+
+                            <button type="submit"
+                                    name="status"
+                                    value="rejected"
+                                    style="
+                                        background:#dc3545;
+                                        color:white;
+                                        border:none;
+                                        padding:6px;
+                                        border-radius:4px;
+                                        cursor:pointer;
+                                        font-weight:bold;
+                                    ">
+                                Reject
+                            </button>
+
+                            {% if section != 'progress' %}
+                            <button type="submit"
+                                    name="status"
+                                    value="in_progress"
+                                    style="
+                                        background:#17a2b8;
+                                        color:white;
+                                        border:none;
+                                        padding:6px;
+                                        border-radius:4px;
+                                        cursor:pointer;
+                                        font-weight:bold;
+                                    ">
+                                In Progress
+                            </button>
+                            {% endif %}
+
+                        </div>
+
+                    {% endif %}
+                </td>
+
+            </form>
+
+        </tr>
+        {% endfor %}
+    </tbody>
+
+</table>
+
+{% endif %}

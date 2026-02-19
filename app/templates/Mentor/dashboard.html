@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2 style="margin-bottom: 5px;">Mentor Dashboard</h2>
+<p style="margin-bottom: 30px; color: #555;">
+    Welcome, <strong>{{ current_user.name }}</strong>
+</p>
+
+<h3 style="margin-bottom: 20px;">My Mentees' Complaints</h3>
+
+{% if not complaints %}
+    <p style="color: #666;">Your mentees have not filed any complaints yet.</p>
+{% else %}
+
+<table style="
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95em;
+    border: 1px solid #ddd;
+">
+
+    <thead style="background: #343a40; color: white;">
+        <tr>
+            <th style="padding: 12px;">Student</th>
+            <th style="padding: 12px;">Issue</th>
+            <th style="padding: 12px;">Status</th>
+            <th style="padding: 12px;">Mentor Action</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for c in complaints %}
+        <tr style="border-bottom: 1px solid #ddd;">
+
+            <!-- Student -->
+            <td style="padding: 12px;">
+                <strong>{{ c.author.name }}</strong><br>
+                <small style="color: #555;">
+                    Room: {{ c.author.room_number or 'N/A' }}
+                </small>
+            </td>
+
+            <!-- Issue -->
+            <td style="padding: 12px;">
+                <span style="
+                    background:#e0e0e0;
+                    padding:3px 8px;
+                    border-radius: 4px;
+                    font-size:0.75em;
+                    font-weight:bold;
+                ">
+                    {{ c.category.value|upper }}
+                </span>
+
+                <br><br>
+                <strong>{{ c.heading }}</strong><br>
+                <span style="color: #555;">
+                    {{ c.description }}
+                </span>
+
+                {% if c.is_urgent %}
+                    <div style="
+                        margin-top: 8px;
+                        background: #fdecea;
+                        color: #dc3545;
+                        padding: 4px 8px;
+                        border-radius: 4px;
+                        font-size: 0.8em;
+                        font-weight: bold;
+                        display: inline-block;
+                    ">
+                        URGENT
+                    </div>
+                {% endif %}
+            </td>
+
+            <!-- Status -->
+            <td style="padding: 12px; text-align: center;">
+                <span style="
+                    font-weight: bold;
+                    padding: 5px 10px;
+                    border-radius: 4px;
+                    color: white;
+                    background:
+                        {% if c.status.value == 'resolved' %} #28a745
+                        {% elif c.status.value == 'pending' %} #ffc107
+                        {% elif c.status.value == 'rejected' %} #dc3545
+                        {% elif c.status.value == 'in_progress' %} #17a2b8
+                        {% else %} #6c757d
+                        {% endif %}
+                ">
+                    {{ c.status.value|upper }}
+                </span>
+
+                {% if c.warden_comment %}
+                    <div style="margin-top: 8px; font-size: 0.85em; color: darkblue;">
+                        <strong>Warden:</strong> {{ c.warden_comment }}
+                    </div>
+                {% endif %}
+            </td>
+
+            <!-- Mentor Action -->
+            <td style="padding: 12px; background: #f8f9fa;">
+                <form method="POST" style="display: flex; flex-direction: column; gap: 8px;">
+                    <input type="hidden" name="complaint_id" value="{{ c.id }}">
+
+                    <label style="
+                        font-size: 0.85em;
+                        font-weight: bold;
+                        color: #dc3545;
+                        display: flex;
+                        align-items: center;
+                        gap: 6px;
+                    ">
+                        <input type="checkbox" name="is_urgent"
+                               {% if c.is_urgent %}checked{% endif %}>
+                        Mark as URGENT
+                    </label>
+
+                    <textarea name="mentor_comment"
+                              rows="2"
+                              placeholder="Add your advice..."
+                              style="
+                                  width: 100%;
+                                  padding: 6px;
+                                  border: 1px solid #ccc;
+                                  border-radius: 4px;
+                              ">{{ c.mentor_comment or '' }}</textarea>
+
+                    <button type="submit"
+                            style="
+                                background: #007bff;
+                                color: white;
+                                border: none;
+                                padding: 6px;
+                                border-radius: 4px;
+                                cursor: pointer;
+                                font-weight: bold;
+                            ">
+                        Update
+                    </button>
+                </form>
+            </td>
+
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endif %}
+
+{% endblock %}

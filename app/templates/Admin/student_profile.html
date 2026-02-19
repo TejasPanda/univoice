@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div style="margin-bottom: 25px;">
+    <a href="{{ url_for('main.admin_students', hostel_id=student.hostel_id) }}"
+       style="text-decoration: none; font-weight: bold;">
+        ← Back to List
+    </a>
+</div>
+
+<!-- Student Info Card -->
+<div style="
+    border: 1px solid #ddd;
+    padding: 25px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    margin-bottom: 40px;
+">
+    <h2 style="margin-top: 0; margin-bottom: 15px;">{{ student.name }}</h2>
+
+    <p><strong>Email:</strong> {{ student.email }}</p>
+    <p><strong>Hostel:</strong> {{ student.hostel.name if student.hostel else 'Unassigned' }}</p>
+    <p><strong>Room:</strong> {{ student.room_number or 'N/A' }}</p>
+    <p><strong>Mentor:</strong> {{ student.mentor.name if student.mentor else 'None' }}</p>
+</div>
+
+<!-- Flagged Section -->
+<h3 style="color: #dc3545; border-bottom: 2px solid #dc3545; padding-bottom: 5px;">
+    ⚠️ Flagged / Abusive History
+</h3>
+
+{% if not flagged %}
+    <p style="color: #666;">No flagged complaints.</p>
+{% else %}
+    {% for c in flagged %}
+    <div style="
+        background: #fdecea;
+        border: 1px solid #dc3545;
+        padding: 15px;
+        border-radius: 6px;
+        margin-bottom: 15px;
+    ">
+        <strong>{{ c.heading }}</strong>
+        <span style="color: #555;">({{ c.created_at.strftime('%Y-%m-%d') }})</span>
+        <p style="margin-top: 8px;">{{ c.description }}</p>
+    </div>
+    {% endfor %}
+{% endif %}
+
+<!-- Complete History -->
+<h3 style="margin-top: 40px; border-bottom: 2px solid #333; padding-bottom: 5px;">
+    📄 Complete Complaint History
+</h3>
+
+{% if not history %}
+    <p style="color: #666;">No other complaints filed.</p>
+{% else %}
+<table style="
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95em;
+    border: 1px solid #ddd;
+">
+    <thead style="background: #343a40; color: white;">
+        <tr>
+            <th style="padding: 12px;">Date</th>
+            <th style="padding: 12px;">Category</th>
+            <th style="padding: 12px;">Issue</th>
+            <th style="padding: 12px;">Status</th>
+            <th style="padding: 12px;">Comments</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for c in history %}
+        <tr style="border-bottom: 1px solid #ddd;">
+            <td style="padding: 10px;">
+                {{ c.created_at.strftime('%Y-%m-%d') }}
+            </td>
+
+            <td style="padding: 10px;">
+                {{ c.category.value|upper }}
+            </td>
+
+            <td style="padding: 10px;">
+                <strong>{{ c.heading }}</strong><br>
+                <small style="color: #555;">{{ c.description }}</small>
+            </td>
+
+            <td style="padding: 10px;">
+                <span style="
+                    font-weight: bold;
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    color: white;
+                    background:
+                        {% if c.status.value == 'resolved' %} #28a745
+                        {% elif c.status.value == 'pending' %} #ffc107
+                        {% elif c.status.value == 'rejected' %} #dc3545
+                        {% elif c.status.value == 'in_progress' %} #17a2b8
+                        {% else %} #6c757d
+                        {% endif %}
+                ">
+                    {{ c.status.value|upper }}
+                </span>
+            </td>
+
+            <td style="padding: 10px;">
+                {% if c.mentor_comment %}
+                    <div style="color: purple; font-size: 0.9em;">
+                        <strong>Mentor:</strong> {{ c.mentor_comment }}
+                    </div>
+                {% endif %}
+                {% if c.warden_comment %}
+                    <div style="color: darkblue; font-size: 0.9em;">
+                        <strong>Warden:</strong> {{ c.warden_comment }}
+                    </div>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+{% endblock %}

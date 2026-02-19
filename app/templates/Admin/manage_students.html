@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+    <h2 style="margin: 0;">Manage Students</h2>
+    <a href="{{ url_for('main.admin_dashboard') }}" style="text-decoration: none; font-weight: bold;">
+        ← Back
+    </a>
+</div>
+
+<!-- Hostel Filter -->
+<div style="
+    background: #f1f5ff;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    border: 1px solid #d0dbff;
+">
+    <form method="GET">
+        <label style="font-weight: bold;">Select Hostel to View Students:</label>
+        <select name="hostel_id"
+                onchange="this.form.submit()"
+                style="padding: 6px 10px; margin-left: 10px; border-radius: 4px;">
+            <option value="">-- Choose Hostel --</option>
+            {% for h in hostels %}
+                <option value="{{ h.id }}" {% if selected_hostel and selected_hostel.id == h.id %}selected{% endif %}>
+                    {{ h.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </form>
+</div>
+
+<div style="display: flex; gap: 40px; align-items: flex-start; flex-wrap: wrap;">
+
+    <!-- Student List -->
+    <div style="flex: 2; min-width: 450px;">
+
+        {% if selected_hostel %}
+            <h3 style="margin-bottom: 15px;">
+                Students in {{ selected_hostel.name }}
+            </h3>
+
+            {% if not students %}
+                <p style="color: #666;">No students found in this hostel.</p>
+            {% else %}
+                <table style="
+                    width: 100%;
+                    border-collapse: collapse;
+                    font-size: 0.95em;
+                    border: 1px solid #ddd;
+                ">
+                    <thead style="background: #343a40; color: white;">
+                        <tr>
+                            <th style="padding: 12px;">Room</th>
+                            <th style="padding: 12px;">Name</th>
+                            <th style="padding: 12px;">Mentor</th>
+                            <th style="padding: 12px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in students %}
+                        <tr style="border-bottom: 1px solid #ddd; text-align: center;">
+                            <td style="padding: 10px;">
+                                {{ s.room_number or 'N/A' }}
+                            </td>
+                            <td style="padding: 10px;">
+                                <strong>{{ s.name }}</strong>
+                            </td>
+                            <td style="padding: 10px;">
+                                {{ s.mentor.name if s.mentor else '-' }}
+                            </td>
+                            <td style="padding: 10px;">
+                                <a href="{{ url_for('main.admin_student_profile', user_id=s.id) }}"
+                                   style="
+                                       background: #17a2b8;
+                                       color: white;
+                                       padding: 5px 10px;
+                                       border-radius: 4px;
+                                       text-decoration: none;
+                                       font-size: 0.85em;
+                                   ">
+                                    View
+                                </a>
+
+                                <a href="{{ url_for('main.edit_user', user_id=s.id) }}"
+                                   style="
+                                       background: #ffc107;
+                                       color: black;
+                                       padding: 5px 10px;
+                                       border-radius: 4px;
+                                       text-decoration: none;
+                                       font-size: 0.85em;
+                                       margin-left: 5px;
+                                   ">
+                                    Edit
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+
+        {% else %}
+            <p>Please select a hostel above to see the student list.</p>
+        {% endif %}
+    </div>
+
+    <!-- Add Student Form -->
+    <div style="
+        flex: 1;
+        min-width: 320px;
+        border: 1px solid #ddd;
+        padding: 25px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    ">
+        <h4 style="margin-top: 0; margin-bottom: 20px;">Add New Student</h4>
+
+        <form method="POST" style="display: flex; flex-direction: column; gap: 12px;">
+
+            <input type="email" name="email" placeholder="Email" required
+                   style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+
+            <input type="text" name="name" placeholder="Full Name" required
+                   style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+
+            <input type="password" name="password" placeholder="Password" required
+                   style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+
+            <input type="text" name="room_number" placeholder="Room Number"
+                   style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+
+            <label style="font-weight: bold;">Hostel:</label>
+            <select name="hostel_id" required
+                    style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                {% for h in hostels %}
+                    <option value="{{ h.id }}"
+                        {% if selected_hostel and selected_hostel.id == h.id %}selected{% endif %}>
+                        {{ h.name }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <label style="font-weight: bold;">Mentor:</label>
+            <select name="mentor_id"
+                    style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                <option value="">-- Assign Mentor --</option>
+                {% for m in mentors %}
+                    <option value="{{ m.id }}">{{ m.name }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="submit"
+                    style="
+                        margin-top: 10px;
+                        background: #007bff;
+                        color: white;
+                        border: none;
+                        padding: 10px;
+                        border-radius: 5px;
+                        cursor: pointer;
+                        font-weight: bold;
+                    ">
+                Create Student
+            </button>
+
+        </form>
+    </div>
+
+</div>
+
+{% endblock %}
