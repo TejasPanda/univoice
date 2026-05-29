@@ -68,8 +68,3 @@ docker-compose exec web python seed.py
 2.  Login with **Google** (if your email is registered) or use the **Admin Credentials** above.
 3.  **For Testing:** You can modify `seed.py` to generate dummy data for Students, Wardens, and Mentors to test different dashboards.
 
-## 🤝 Contributing
-Feel free to fork this repo and submit Pull Requests. For major changes, please open an issue first to discuss what you would like to change.
-
-## 📄 License
-This project is licensed under the MIT License.
